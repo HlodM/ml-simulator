@@ -4,5 +4,7 @@
 
 По запросу построен дашборд — процент успешных оплат в месяц для каждого из типов оплат: Visa, Mastercard и др.
 
+![alt text](https://github.com/HlodM/ml-simulator/blob/main/level2/PAYMENTS_DASHBOARD(PostgreSQL)/bar.png)
+
 
 Инструменты: PostgreSQL, Redash
