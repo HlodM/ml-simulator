@@ -3,6 +3,6 @@
 
 По запросу построен дашборд с динамикой WAU.
 
-
+![alt text](https://github.com/HlodM/ml-simulator/blob/main/level2/WAU(ClickHouse%2CMetrics)/bar_wau.png)
 
 Инструменты: ClickHouse, Redash
