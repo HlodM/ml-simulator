@@ -4,4 +4,6 @@ SQL запрос для расчета метрик:
 
 По запросу построен дашборд метрик ARPPU и AOV от времени.
 
+![alt text](https://github.com/HlodM/ml-simulator/blob/main/level2/ARPPU%26AOV(PostgreSQL%2CMetrics)/bar.png)
+
 Инструменты: PostgreSQL, Redash
