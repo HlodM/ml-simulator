@@ -10,10 +10,10 @@ def elasticity_df(df: pd.DataFrame) -> pd.DataFrame:
 
     df_copy = df.copy()
 
-    df_copy['log_qty'] = np.log(df_copy['qty'] + 1)
+    df_copy["log_qty"] = np.log(df_copy["qty"] + 1)
 
-    df_copy = df_copy.groupby('sku', as_index=False).apply(
-        lambda x: pd.Series({'elasticity': linregress(x['price'], x['log_qty']).rvalue ** 2})
+    df_copy = df_copy.groupby("sku", as_index=False).apply(
+        lambda x: pd.Series({"elasticity": linregress(x["price"], x["log_qty"]).rvalue ** 2})
     )
 
     return df_copy

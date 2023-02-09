@@ -12,29 +12,29 @@ def agg_comp_price(X: pd.DataFrame) -> pd.DataFrame:
 
     # dictionary of aggregate functions
     func_dict = {
-        'max': np.max,
-        'min': np.min,
-        'med': np.median,
-        'avg': np.mean,
+        "max": "max",
+        "min": "min",
+        "med": "median",
+        "avg": "mean",
     }
 
     def aggregate_group_func(group):
         """Returns the  result of applying the aggregate function to the grouped Dataframe
         as a new comp_price column"""
-        agg_func = group['agg'].iloc[0]
+        agg_func = group["agg"].iloc[0]
 
-        if agg_func == 'rnk':
-            return pd.Series({'comp_price': group['comp_price'].iloc[group['rank'].argmin()]})
-        return pd.Series({'comp_price': func_dict[agg_func](group['comp_price'])})
+        if agg_func == "rnk":
+            return pd.Series({"comp_price": group["comp_price"].iloc[group["rank"].argmin()]})
+        return pd.Series({"comp_price": group["comp_price"].agg(func_dict[agg_func])})
 
-    x_copy = x_copy.groupby(['sku', 'agg', 'base_price'], as_index=False).apply(aggregate_group_func)
+    x_copy = x_copy.groupby(["sku", "agg", "base_price"], as_index=False).apply(aggregate_group_func)
 
     # if the competitive and base prices differ by more than 20 %, the base price is taken,
     # otherwise - the competitive price
-    x_copy['new_price'] = np.where(
-        abs(1 - x_copy['comp_price'] / x_copy['base_price']) <= 0.2,
-        x_copy['comp_price'],
-        x_copy['base_price']
+    x_copy["new_price"] = np.where(
+        abs(1 - x_copy["comp_price"] / x_copy["base_price"]) <= 0.2,
+        x_copy["comp_price"],
+        x_copy["base_price"]
     )
 
     return x_copy
