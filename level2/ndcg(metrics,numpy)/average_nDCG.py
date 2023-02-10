@@ -23,8 +23,8 @@ def avg_ndcg(list_relevances: List[List[float]], k: int, method: str = "standard
         Metric score
     """
 
-    score = np.mean(np.apply_along_axis(
-        lambda relevance: normalized_dcg(relevance, k, method), 1, list_relevances)
+    score = np.mean(
+        np.apply_along_axis(lambda relevance: normalized_dcg(relevance, k, method), 1, list_relevances)
     )
 
     return score
