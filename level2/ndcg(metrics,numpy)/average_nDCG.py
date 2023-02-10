@@ -1,5 +1,4 @@
 from typing import List
-
 import numpy as np
 
 
@@ -37,7 +36,7 @@ def dcg(relevance: List[float], k: int, method: str = "standard") -> float:
     if method == "standard":
         dcg_score = np.sum(np.array(relevance[:k]) / np.log2(range(2, k + 2)))
     elif method == "industry":
-        dcg_score = np.sum((2 ** np.array(relevance[:k]) - 1) / np.log2(range(2, k + 2)))
+        dcg_score = np.sum((2 ** np.array(relevance[:k]) - 1) / np.log2(np.arange(2, k + 2)))
     else:
         raise ValueError
 
