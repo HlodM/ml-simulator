@@ -2,4 +2,4 @@
 
 Добавляются по мере решения.
 
-Инструметны: postgresql, clickhouse, redash, numpy, pandas, sklearn, scipy, torch, joblib, fastapi, mlflow, pyspark 
+Инструметны: postgresql, clickhouse, redash, numpy, pandas, sklearn, scipy, torch, joblib, fastapi, mlflow, pyspark.
