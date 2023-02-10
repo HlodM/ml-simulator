@@ -72,7 +72,7 @@ class CountNull(Metric):
 
     def _call_pandas(self, df: pd.DataFrame) -> Dict[str, Any]:
         n = len(df)
-        k = df[self.columns].isna().apply(self.aggregation, axis=1).sum()
+        k = df[self.columns].isna().agg(self.aggregation, axis=1).sum()
         return {"total": n, "count": k, "delta": k / n}
 
     def _call_pyspark(self, df: ps.DataFrame) -> Dict[str, Any]:
@@ -128,14 +128,18 @@ class CountBelowValue(Metric):
 
     def _call_pandas(self, df: pd.DataFrame) -> Dict[str, Any]:
         n = len(df)
-        k = sum(df[self.column] < self.value + (not self.strict) * 1e-10)
+        k = sum(df[self.column] < self.value)
+        if not self.strict:
+            k += sum(df[self.column] == self.value)
         return {"total": n, "count": k, "delta": k / n}
 
     def _call_pyspark(self, df: ps.DataFrame) -> Dict[str, Any]:
         from pyspark.sql.functions import col
 
         n = df.count()
-        k = df.filter(col(self.column) < self.value + (not self.strict) * 1e-10).count()
+        k = df.filter(col(self.column) < self.value).count()
+        if not self.strict:
+            k += df.filter(col(self.column) == self.value).count()
         return {"total": n, "count": k, "delta": k / n}
 
 
@@ -149,14 +153,18 @@ class CountBelowColumn(Metric):
 
     def _call_pandas(self, df: pd.DataFrame) -> Dict[str, Any]:
         n = len(df)
-        k = sum(df[self.column_x] < df[self.column_y] + (not self.strict) * 1e-10)
+        k = sum(df[self.column_x] < df[self.column_y])
+        if not self.strict:
+            k += sum(df[self.column_x] == df[self.column_y])
         return {"total": n, "count": k, "delta": k / n}
 
     def _call_pyspark(self, df: ps.DataFrame) -> Dict[str, Any]:
         from pyspark.sql.functions import col
 
         n = df.count()
-        k = df.filter(col(self.column_x) < col(self.column_y) + (not self.strict) * 1e-10).count()
+        k = df.filter(col(self.column_x) < col(self.column_y)).count()
+        if not self.strict:
+            k += df.filter(col(self.column_x) == col(self.column_y)).count()
         return {"total": n, "count": k, "delta": k / n}
 
 
@@ -171,17 +179,18 @@ class CountRatioBelow(Metric):
 
     def _call_pandas(self, df: pd.DataFrame) -> Dict[str, Any]:
         n = len(df)
-        k = sum(df[self.column_x] / df[self.column_y] < df[self.column_z] + (not self.strict) * 1e-10)
+        k = sum(df[self.column_x] / df[self.column_y] < df[self.column_z])
+        if not self.strict:
+            k += sum(df[self.column_x] / df[self.column_y] == df[self.column_z])
         return {"total": n, "count": k, "delta": k / n}
 
     def _call_pyspark(self, df: ps.DataFrame) -> Dict[str, Any]:
         from pyspark.sql.functions import col
 
         n = df.count()
-        if self.strict:
-            k = df.filter(col(self.column_x) / col(self.column_y) < col(self.column_z)).count()
-        else:
-            k = df.filter(col(self.column_x) / col(self.column_y) <= col(self.column_z)).count()
+        k = df.filter(col(self.column_x) / col(self.column_y) < col(self.column_z)).count()
+        if not self.strict:
+            k += df.filter(col(self.column_x) / col(self.column_y) == col(self.column_z)).count()
         return {"total": n, "count": k, "delta": k / n}
 
 
@@ -198,7 +207,9 @@ class CountCB(Metric):
 
     def _call_pyspark(self, df: ps.DataFrame) -> Dict[str, Any]:
         from pyspark.sql.functions import percentile_approx as pa
-        lcb, ucb = df.select(pa(self.column, ((1 - self.conf) / 2, (1 + self.conf) / 2))).collect()[0][0]
+        lcb, ucb = df.select(
+            pa(self.column, ((1 - self.conf) / 2, (1 + self.conf) / 2))
+        ).collect()[0][0]
         return {"lcb": lcb, "ucb": ucb}
 
 
