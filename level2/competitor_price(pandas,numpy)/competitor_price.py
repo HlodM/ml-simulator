@@ -34,7 +34,7 @@ def agg_comp_price(X: pd.DataFrame) -> pd.DataFrame:
     x_copy["new_price"] = np.where(
         abs(1 - x_copy["comp_price"] / x_copy["base_price"]) <= 0.2,
         x_copy["comp_price"],
-        x_copy["base_price"]
+        x_copy["base_price"],
     )
 
     return x_copy
