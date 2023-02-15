@@ -15,9 +15,8 @@ offers_conversions = {}
 offers_rewards = {}
 
 
-def upper_confidence_bound(offer_id):
+def upper_confidence_bound(offer_id, step):
     """Returns rpc (revenue per click) upper confidence bound for offer_id"""
-    step = len(click_offer_dict)
     rpc = stats(offer_id)['rpc']
 
     if offer_id in offers_count:
@@ -43,7 +42,8 @@ def sample(click_id: int, offer_ids: str) -> dict:
     offers_ids = [int(offer) for offer in offer_ids.split(",")]
 
     # Upper confidence bound sample offer ID
-    offer_id = max(offers_ids, key=upper_confidence_bound)
+    step = len(click_offer_dict)
+    offer_id = max(offers_ids, key=lambda x: upper_confidence_bound(x, step))
 
     offers_count[offer_id] = offers_count.get(offer_id, 0) + 1
     click_offer_dict[click_id] = offer_id
@@ -51,7 +51,7 @@ def sample(click_id: int, offer_ids: str) -> dict:
     # Prepare response
     response = {
         "click_id": click_id,
-        "offer_id": offer_id
+        "offer_id": offer_id,
     }
 
     return response
@@ -72,7 +72,7 @@ def feedback(click_id: int, reward: float) -> dict:
         "click_id": click_id,
         "offer_id": offer_id,
         "is_conversion": is_conversion,
-        "reward": reward
+        "reward": reward,
     }
     return response
 
@@ -86,7 +86,7 @@ def stats(offer_id: int) -> dict:
         "conversions": offers_conversions.setdefault(offer_id, 0),
         "reward": offers_rewards.setdefault(offer_id, 0),
         "cr": offers_conversions[offer_id] / offers_count.get(offer_id, 1),
-        "rpc": offers_rewards[offer_id] / offers_count.get(offer_id, 1)
+        "rpc": offers_rewards[offer_id] / offers_count.get(offer_id, 1),
     }
     return response
 

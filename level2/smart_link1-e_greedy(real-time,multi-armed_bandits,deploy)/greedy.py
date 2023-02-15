@@ -44,7 +44,7 @@ def sample(click_id: int, offer_ids: str) -> dict:
     response = {
         "click_id": click_id,
         "offer_id": offer_id,
-        "sampler": sampler
+        "sampler": sampler,
     }
 
     return response
@@ -65,7 +65,7 @@ def feedback(click_id: int, reward: float) -> dict:
         "click_id": click_id,
         "offer_id": offer_id,
         "is_conversion": is_conversion,
-        "reward": reward
+        "reward": reward,
     }
     return response
 

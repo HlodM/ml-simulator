@@ -45,7 +45,7 @@ def sample(click_id: int, offer_ids: str, epsilon: float = 0.1) -> dict:
     response = {
         "click_id": click_id,
         "offer_id": offer_id,
-        "sampler": sampler
+        "sampler": sampler,
     }
 
     return response
@@ -66,7 +66,7 @@ def feedback(click_id: int, reward: float) -> dict:
         "click_id": click_id,
         "offer_id": offer_id,
         "is_conversion": is_conversion,
-        "reward": reward
+        "reward": reward,
     }
     return response
 
@@ -80,7 +80,7 @@ def stats(offer_id: int) -> dict:
         "conversions": offers_conversions.setdefault(offer_id, 0),
         "reward": offers_rewards.setdefault(offer_id, 0),
         "cr": offers_conversions[offer_id] / offers_count.get(offer_id, 1),
-        "rpc": offers_rewards[offer_id] / offers_count.get(offer_id, 1)
+        "rpc": offers_rewards[offer_id] / offers_count.get(offer_id, 1),
     }
     return response
 
