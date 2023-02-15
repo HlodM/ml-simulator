@@ -36,7 +36,7 @@ def recall_at_precision(
     """
 
     precision, recall, _ = precision_recall_curve(true_labels, pred_scores)
-    metric = np.max(np.where(precision > min_precision, recall, 0))
+    metric = np.max(recall[np.where(precision > min_precision)])
     return metric
 
 
@@ -112,7 +112,7 @@ def job(
         IsolationForest(n_estimators=300),
         OneClassSVM(kernel="rbf"),
         OneClassSVM(kernel="poly"),
-        LocalOutlierFactor(novelty=True)
+        LocalOutlierFactor(novelty=True),
     ]
 
     for model in models_list:
@@ -120,7 +120,7 @@ def job(
 
         mlflow.set_tags({
             "task_type": "anti-fraud",
-            "framework": "sklearn"
+            "framework": "sklearn",
         })
 
         model.fit(train_dataset)
@@ -132,7 +132,7 @@ def job(
             "features": list(train_dataset.columns),
             "target": target,
             "model_type": model.__class__.__name__,
-            "model_params": model.get_params()
+            "model_params": model.get_params(),
         }
         mlflow.log_params(params)
 
@@ -143,7 +143,7 @@ def job(
         mlflow.log_metrics({
             "roc_auc": roc_auc,
             "recall_precision_95": recall_precision_95,
-            "recall_specificity_95": recall_specificity_95
+            "recall_specificity_95": recall_specificity_95,
         })
 
         mlflow.log_artifact(train_path, "data")
