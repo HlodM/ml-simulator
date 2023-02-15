@@ -127,9 +127,8 @@ def select_mde(
     """Select MDE."""
     for mde in mde_grid:
         # Implement your solution here
-        type_1_error = aa_test(n_simulations, n_samples, cvr, reward_avg, reward_std, alpha)
         type_2_error = ab_test(n_simulations, n_samples, cvr, mde, reward_avg, reward_std, alpha)
-        if type_1_error <= alpha and type_2_error <= beta:
+        if type_2_error <= beta:
             return mde, type_2_error
 
     raise RuntimeError(
