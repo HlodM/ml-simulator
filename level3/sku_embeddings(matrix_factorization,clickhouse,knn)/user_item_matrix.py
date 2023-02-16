@@ -100,8 +100,6 @@ class UserItemMatrix:
             csr_matrix: CSR matrix
         """
         data = self.sales_data["qty"]
-        user_map = self.user_map
-        item_map = self.item_map
-        row = list(map(lambda x: user_map[x], self.sales_data["user_id"]))
-        col = list(map(lambda x: item_map[x], self.sales_data["item_id"]))
+        row = self.sales_data["user_id"].map(self.user_map)
+        col = self.sales_data["item_id"].map(self.item_map)
         return csr_matrix((data, (row, col)), shape=(self.user_count, self.item_count))
