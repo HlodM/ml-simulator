@@ -3,6 +3,6 @@ SQL запрос для подсчета WAU (weekly active users – колич
 
 По запросу построен дашборд с динамикой WAU.
 
-![alt text](https://github.com/HlodM/ml-simulator/blob/main/level2/WAU(ClickHouse%2CMetrics)/bar_wau.png)
+![alt text](https://github.com/HlodM/ml-simulator/blob/main/level2/wau(clickhouse%2Cmetrics)/bar_wau.png)
 
 Инструменты: ClickHouse, Redash
