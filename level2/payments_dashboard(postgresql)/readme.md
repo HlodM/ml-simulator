@@ -4,7 +4,6 @@ SQL запрос для подсчета процента успешных оп�
 
 По запросу построен дашборд — процент успешных оплат в месяц для каждого из типов оплат: Visa, Mastercard и др.
 
-![alt text](https://github.com/HlodM/ml-simulator/blob/main/level2/PAYMENTS_DASHBOARD(PostgreSQL)/bar.png)
-
+![alt text](https://github.com/HlodM/ml-simulator/blob/main/level2/payments_dashboard(postgresql)/bar.png)
 
 Инструменты: PostgreSQL, Redash
