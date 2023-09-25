@@ -128,18 +128,20 @@ class CountBelowValue(Metric):
 
     def _call_pandas(self, df: pd.DataFrame) -> Dict[str, Any]:
         n = len(df)
-        k = sum(df[self.column] < self.value)
-        if not self.strict:
-            k += sum(df[self.column] == self.value)
+        if self.strict:
+            k = sum(df[self.column] < self.value)
+        else:
+            k = sum(df[self.column] <= self.value)
         return {"total": n, "count": k, "delta": k / n}
 
     def _call_pyspark(self, df: ps.DataFrame) -> Dict[str, Any]:
         from pyspark.sql.functions import col
 
         n = df.count()
-        k = df.filter(col(self.column) < self.value).count()
-        if not self.strict:
-            k += df.filter(col(self.column) == self.value).count()
+        if self.strict:
+            k = df.filter(col(self.column) < self.value).count()
+        else:
+            k = df.filter(col(self.column) <= self.value).count()
         return {"total": n, "count": k, "delta": k / n}
 
 
@@ -153,18 +155,21 @@ class CountBelowColumn(Metric):
 
     def _call_pandas(self, df: pd.DataFrame) -> Dict[str, Any]:
         n = len(df)
-        k = sum(df[self.column_x] < df[self.column_y])
-        if not self.strict:
-            k += sum(df[self.column_x] == df[self.column_y])
+        if self.strict:
+            k = sum(df[self.column_x] < df[self.column_y])
+        else:
+            k = sum(df[self.column_x] <= df[self.column_y])
         return {"total": n, "count": k, "delta": k / n}
 
     def _call_pyspark(self, df: ps.DataFrame) -> Dict[str, Any]:
         from pyspark.sql.functions import col
 
         n = df.count()
-        k = df.filter(col(self.column_x) < col(self.column_y)).count()
-        if not self.strict:
-            k += df.filter(col(self.column_x) == col(self.column_y)).count()
+        df_dropna = df.dropna(how='any', subset=[self.column_x, self.column_y])
+        if self.strict:
+            k = df_dropna.filter(col(self.column_x) < col(self.column_y)).count()
+        else:
+            k = df_dropna.filter(col(self.column_x) <= col(self.column_y)).count()
         return {"total": n, "count": k, "delta": k / n}
 
 
@@ -179,18 +184,21 @@ class CountRatioBelow(Metric):
 
     def _call_pandas(self, df: pd.DataFrame) -> Dict[str, Any]:
         n = len(df)
-        k = sum(df[self.column_x] / df[self.column_y] < df[self.column_z])
-        if not self.strict:
-            k += sum(df[self.column_x] / df[self.column_y] == df[self.column_z])
+        if self.strict:
+            k = sum(df[self.column_x] / df[self.column_y] < df[self.column_z])
+        else:
+            k = sum(df[self.column_x] / df[self.column_y] <= df[self.column_z])
         return {"total": n, "count": k, "delta": k / n}
 
     def _call_pyspark(self, df: ps.DataFrame) -> Dict[str, Any]:
         from pyspark.sql.functions import col
 
         n = df.count()
-        k = df.filter(col(self.column_x) / col(self.column_y) < col(self.column_z)).count()
-        if not self.strict:
-            k += df.filter(col(self.column_x) / col(self.column_y) == col(self.column_z)).count()
+        df_dpopna = df.dropna(how='any', subset=[self.column_x, self.column_y, self.column_z])
+        if self.strict:
+            k = df_dpopna.filter(col(self.column_x) / col(self.column_y) < col(self.column_z)).count()
+        else:
+            k = df_dpopna.filter(col(self.column_x) / col(self.column_y) <= col(self.column_z)).count()
         return {"total": n, "count": k, "delta": k / n}
 
 
@@ -207,7 +215,7 @@ class CountCB(Metric):
 
     def _call_pyspark(self, df: ps.DataFrame) -> Dict[str, Any]:
         from pyspark.sql.functions import percentile_approx as pa
-        lcb, ucb = df.select(
+        lcb, ucb = df.dropna(how='any', subset=[self.column]).select(
             pa(self.column, ((1 - self.conf) / 2, (1 + self.conf) / 2))
         ).collect()[0][0]
         return {"lcb": lcb, "ucb": ucb}
@@ -222,12 +230,13 @@ class CountLag(Metric):
 
     def _call_pandas(self, df: pd.DataFrame) -> Dict[str, Any]:
         a = pd.to_datetime("today")
-        b = df[self.column].iat[-1]
+        b = df[self.column].max()
         lag = (a - pd.to_datetime(b)).days
         return {"today": a.strftime(self.fmt), "last_day": b, "lag": lag}
 
     def _call_pyspark(self, df: ps.DataFrame) -> Dict[str, Any]:
+        from pyspark.sql.functions import max as ps_max
         a = datetime.datetime.today()
-        b = df.tail(1)[0][self.column]
+        b = df.select(ps_max(self.column)).collect()[0][0]
         lag = (a - datetime.datetime.strptime(b, self.fmt)).days
         return {"today": a.strftime(self.fmt), "last_day": b, "lag": lag}

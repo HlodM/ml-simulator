@@ -3,7 +3,6 @@
 from typing import Dict, List, Tuple, Union
 from dataclasses import dataclass, field
 from user_input.metrics import Metric
-from joblib import hash as jhash
 
 import pandas as pd
 import pyspark.sql as ps
@@ -34,13 +33,13 @@ class Report:
 
     @staticmethod
     def _hash_pandas_dict(tables: Dict[str, pd.DataFrame]) -> str:
-        """Returns hash of dictionary with pd.DataFrames"""
-        return jhash({key: tables[key] for key in sorted(tables.keys())})
+        """Returns hash of dictionary with pd.DataFrames as values"""
+        return str({key: tables[key] for key in sorted(tables.keys())})
 
     @staticmethod
     def _hash_pyspark_dict(tables: Dict[str, ps.DataFrame]) -> str:
-        """Returns hash of dictionary with ps.DataFrames"""
-        return jhash({key: tables[key].collect() for key in sorted(tables.keys())})
+        """Returns hash of dictionary with ps.DataFrames as values"""
+        return str({key: tables[key].collect() for key in sorted(tables.keys())})
 
     def _build_report(self, tables: Dict[str, Union[pd.DataFrame, ps.DataFrame]], report: Dict) -> None:
         """Calculate DQ metrics and build report"""
@@ -50,7 +49,7 @@ class Report:
             try:
                 value = metric(tables[table_name])
             except Exception as err:
-                error = err
+                error = repr(err)
                 value = {}
                 status = "E"
             else:
